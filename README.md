@@ -83,12 +83,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ![Screenshot 2025-01-24 155818](https://github.com/user-attachments/assets/5cbed567-b3a4-4157-bb23-36860cb3e333)
 
 
-
-
-
-
-![Nose Shape Visualizer](screenshot.png)
-
 ---
 
 Let me know if you want to modify or add any additional details to the README!
