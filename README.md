@@ -18,8 +18,8 @@ This application allows users to upload front and side profile images to visuali
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/yourusername/nose-shape-visualizer.git
-   cd nose-shape-visualizer
+   git clone https://github.com/Sonali-2147/Nose Detector and Modifier tool.git
+   cd Nose Detector and Modifier
    ```
 
 2. Install the required dependencies:
@@ -73,8 +73,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-### Example Screenshot
-To show a preview of the application in the README, you can add a screenshot here (after running the application):
+### Sreenshots
+![Screenshot 2025-01-24 155719](https://github.com/user-attachments/assets/adac76de-0e7c-4cfa-b069-7452c0f70a14)
+
+![Screenshot 2025-01-24 155726](https://github.com/user-attachments/assets/5c418405-5acb-45b0-b839-184861f21c38)
+
+![Screenshot 2025-01-24 155756](https://github.com/user-attachments/assets/8781a35e-c60d-448c-adc6-332b1539851f)
+
+![Screenshot 2025-01-24 155818](https://github.com/user-attachments/assets/5cbed567-b3a4-4157-bb23-36860cb3e333)
+
+
+
+
+
 
 ![Nose Shape Visualizer](screenshot.png)
 
