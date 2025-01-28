@@ -2,6 +2,8 @@
 
 This application allows users to upload front and side profile images to visualize and modify their nose shapes using computer vision techniques. The application uses the `mediapipe` library to detect facial landmarks, specifically for the nose area, and allows users to modify the width and height of the nose.
 
+## Weather App Deployed : https://nose-detector-and-modifier-tool.onrender.com/
+
 ## Features
 - **Front Profile**: Detects nose landmarks and allows users to modify the nose's width and height.
 - **Side Profile**: Detects the nose region and allows users to modify its width and height.
