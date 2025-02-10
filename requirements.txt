@@ -1,8 +1,6 @@
 streamlit
 opencv-python
-mediapipe
-diffusers
-torch
-torchvision
-Pillow
 numpy
+Pillow
+mediapipe
+scipy
