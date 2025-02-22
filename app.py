@@ -3,7 +3,25 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from PIL import Image
-import scipy.interpolate as interp
+
+# Custom CSS for UI enhancements
+st.markdown("""
+    <style>
+        .stButton > button { 
+            width: 100%; 
+            border-radius: 8px; 
+            background: linear-gradient(135deg, #ff416c, #ff4b2b); 
+            color: white; 
+            font-size: 16px; 
+            padding: 10px; 
+            border: none; 
+            font-weight: bold;
+            transition: all 0.3s ease-in-out; 
+            box-shadow: 0px 4px 10px rgba(255, 65, 108, 0.4);
+        }
+        
+""", unsafe_allow_html=True)
+
 
 # Initialize MediaPipe FaceMesh
 mp_face_mesh = mp.solutions.face_mesh
@@ -40,117 +58,91 @@ def detect_nose_landmarks(image, profile="front", increase_factor=1.3):
 
         return (x_min, y_min, nose_w, nose_h), img_copy
 
-def match_histogram(source, target):
-    """
-    Matches the histogram of the source (resized nose) to the target (original skin region).
-    This helps blend the colors smoothly.
-    """
-    source = cv2.cvtColor(source, cv2.COLOR_BGR2YCrCb)
-    target = cv2.cvtColor(target, cv2.COLOR_BGR2YCrCb)
-
-    for i in range(1, 3):  # Match only Cr and Cb channels (skin tones)
-        src_hist, _ = np.histogram(source[:, :, i], bins=256, range=(0, 256))
-        tgt_hist, _ = np.histogram(target[:, :, i], bins=256, range=(0, 256))
-
-        cdf_src = np.cumsum(src_hist).astype(float) / np.sum(src_hist)
-        cdf_tgt = np.cumsum(tgt_hist).astype(float) / np.sum(tgt_hist)
-
-        lookup_table = np.interp(cdf_src, cdf_tgt, np.arange(256)).astype(np.uint8)
-        source[:, :, i] = cv2.LUT(source[:, :, i], lookup_table)
-
-    return cv2.cvtColor(source, cv2.COLOR_YCrCb2BGR)
-
 def modify_nose(image, nose_region, scale_x=1.2, scale_y=1.2):
     if not nose_region:
         return image
-
     x, y, w, h = nose_region
     nose_roi = image[y:y+h, x:x+w].copy()
-
     if nose_roi.size == 0:
         return image
-
-    # Resize the nose
     new_w, new_h = int(w * scale_x), int(h * scale_y)
     resized_nose = cv2.resize(nose_roi, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
-
-    # Extract surrounding skin region for color matching
-    y1, y2 = max(0, y - h // 2), min(image.shape[0], y + h + h // 2)
-    x1, x2 = max(0, x - w // 2), min(image.shape[1], x + w + w // 2)
-    surrounding_skin = image[y1:y2, x1:x2]
-
-    # Apply histogram matching for skin tone blending
-    resized_nose = match_histogram(resized_nose, surrounding_skin)
-
-    # Create a soft blending mask
-    mask = np.zeros((new_h, new_w), dtype=np.uint8)
-    cv2.ellipse(mask, (new_w // 2, new_h // 2), (new_w // 2, new_h // 2), 0, 0, 360, 255, -1)
-    
-    # Adaptive blur for soft edges
-    blur_size = max(15, (new_w + new_h) // 20)  # Adjust blur dynamically
-    blur_size += 1 if blur_size % 2 == 0 else 0  # Ensure kernel is odd
-    mask = cv2.GaussianBlur(mask, (blur_size, blur_size), 10)
-
-    # Compute the new center for seamless blending
-    x_center = x + w // 2
-    y_center = y + h // 2
-
-    # Ensure resized nose stays within image bounds
-    x1, y1 = max(0, x + w//2 - new_w//2), max(0, y + h//2 - new_h//2)
+    x_center, y_center = x + w // 2, y + h // 2
+    x1, y1 = max(0, x_center - new_w // 2), max(0, y_center - new_h // 2)
     x2, y2 = min(image.shape[1], x1 + new_w), min(image.shape[0], y1 + new_h)
-
-    # Crop if exceeding image boundaries
     resized_nose = resized_nose[:y2-y1, :x2-x1]
-    mask = mask[:y2-y1, :x2-x1]
-
-    # Apply seamless cloning for realistic blending
-    blended_image = cv2.seamlessClone(resized_nose, image, mask, (x_center, y_center), cv2.NORMAL_CLONE)
-
+    blended_image = image.copy()
+    blended_image[y1:y2, x1:x2] = resized_nose
     return blended_image
 
+# Streamlit UI
+st.markdown("""
+    <style>
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px 0;
+        }
+        .subtitle {
+            font-size: 18px;
+            text-align: center;
+            color: #dddddd;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+    </style>
+    
+    <h1 class="title">👃 Rhinoplasty AI Nose Shape Modifier</h1>
+    <p class="subtitle">✨ AI-powered tool to reshape and enhance your nose naturally! ✨</p>
+""", unsafe_allow_html=True)
 
 
-st.title("AI-Powered Nose Shape Modifier")
+st.markdown("#### Modify your nose shape with AI technology in just a few clicks!")
+
 profile_option = st.radio("Choose profile to modify:", ["Front Profile", "Side Profile"])
 
-uploaded_file = st.file_uploader("Upload your photo", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("📷 Upload your photo", type=["jpg", "jpeg", "png"])
 if uploaded_file:
     image = np.array(Image.open(uploaded_file))
     profile_type = "front" if profile_option == "Front Profile" else "side"
     nose_region, marked_image = detect_nose_landmarks(image, profile_type)
-
+    
     if nose_region:
-        st.image(marked_image, caption="Detected Nose Landmarks", use_column_width=True)
-        st.write("### Suggested Nose Shapes for your face")
-        shape_option = st.selectbox("Choose a nose shape:",
-                                    ["Original", "Longer", "Wider", "Sharpened Tip", "Rounded Tip", "Shorter", "Slimmer"])
+        st.image(marked_image, caption="✅ Detected Nose Landmarks", use_container_width=True)
+        st.write("### 🎨 Suggested Nose Shapes for Your Face")
 
         shape_modifiers = {
-            "Original": (1.0, 1.0),      
-            "Longer": (0.85, 1.05),      
-            "Wider": (1.15, 1.0),         
-            "Sharpened Tip": (1.0, 0.85), 
-            "Rounded Tip": (1.0, 1.15),   
-            "Shorter": (1.0, 0.85),      
-            "Slimmer": (1.0, 1.2)         
+            "Original": (1.0, 1.0),
+            "Longer": (0.9, 1.1),  
+            "Wider": (1.2, 1.0),  
+            "Sharpened Tip": (0.95, 0.9),  
+            "Rounded Tip": (1.0, 1.2),  
+            "Shorter": (1.0, 0.85),  
+            "Slimmer": (0.9, 1.1),  
         }
 
-        scale_x, scale_y = shape_modifiers[shape_option]
+        shape_images = {shape: modify_nose(image.copy(), nose_region, scale_x, scale_y) 
+                        for shape, (scale_x, scale_y) in shape_modifiers.items()}
         
-        if st.button("Apply Suggested Nose Shape"):
-            modified_image = modify_nose(image.copy(), nose_region, scale_x, scale_y)
-            st.image(modified_image, caption=f"Modified Nose - {shape_option}", use_column_width=True)
-        
-        st.write("### Custom Adjustments")
+        cols = st.columns(2)
+        for i, (shape, img) in enumerate(shape_images.items()):
+            with cols[i % 2]:  
+                st.image(img, caption=f"🔹 {shape}", use_container_width=True)
+
+        st.write("### 🎛️ Custom Adjustments")
         scale_x = st.slider("Adjust Nose Width", 0.5, 2.0, 1.0, step=0.1)
         scale_y = st.slider("Adjust Nose Height", 0.5, 2.0, 1.0, step=0.1)
+
         if st.button("Apply Custom Nose Modification"):
             result_image = modify_nose(image.copy(), nose_region, scale_x, scale_y)
-            st.image(result_image, caption="Custom Modified Nose", use_column_width=True)
+            st.image(result_image, caption="Custom Modified Nose", use_container_width=True)
     else:
-        st.error("No face/nose detected. Please upload a clear photo.")
+        st.error("⚠️ No face/nose detected. Please upload a clear photo.")
 
-# Add Copyright Notice at the Bottom
 st.markdown("---")
-st.markdown("© Sonali Kadam")
-st.markdown("AI-Powered Nose Modifier 2025. All rights reserved.")
+st.markdown("<p style='text-align:center; font-size:14px;'>© 2025 Sonali Kadam | AI-Powered Nose Modifier</p>", unsafe_allow_html=True)
