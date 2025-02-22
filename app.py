@@ -97,7 +97,7 @@ st.markdown("""
         }
     </style>
     
-    <h1 class="title">👃 Rhinoplasty AI Nose Shape Modifier</h1>
+    <h1 class="title">👃 Rhinoplasty AI </h1>
     <p class="subtitle">✨ AI-powered tool to reshape and enhance your nose naturally! ✨</p>
 """, unsafe_allow_html=True)
 
