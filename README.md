@@ -1,90 +1,107 @@
-# Nose-Detector-and-Modifier-tool
+Here's a `README.md` file for your AI-powered nose modification app:  
 
-This application allows users to upload front and side profile images to visualize and modify their nose shapes using computer vision techniques. The application uses the `mediapipe` library to detect facial landmarks, specifically for the nose area, and allows users to modify the width and height of the nose.
+```md
+# 👃 Rhinoplasty AI - AI-Powered Nose Modifier
 
-## Website deployed on : https://nose-detector-and-modifier-tool.onrender.com/
-
-## Features
-- **Front Profile**: Detects nose landmarks and allows users to modify the nose's width and height.
-- **Side Profile**: Detects the nose region and allows users to modify its width and height.
-- **Interactive Interface**: Users can upload images, see detected nose shapes, and adjust their appearance interactively.
-
-## Technologies Used
-- **Streamlit**: For building the web interface.
-- **OpenCV**: For image manipulation.
-- **MediaPipe**: For facial landmark detection.
-- **Pillow (PIL)**: For image processing.
-
-## Installation
-
-1. Clone this repository:
-
-   ```bash
-   git clone https://github.com/Sonali-2147/Nose Detector and Modifier tool.git
-   cd Nose Detector and Modifier
-   ```
-
-2. Install the required dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Run the Streamlit app:
-
-   ```bash
-   streamlit run app.py
-   ```
-
-4. Open the URL shown in the terminal (usually `http://localhost:8501`) in your browser to start using the application.
-
-## Usage
-
-1. **Choose Profile**: Select whether you want to modify a "Front Profile" or a "Side Profile."
-   
-2. **Upload Image**: Click the "Upload" button to upload an image of your face. Make sure the face is clearly visible for the best results.
-
-3. **Adjust Nose Dimensions**:
-   - After the nose is detected, use the sliders to adjust the **Nose Width** and **Nose Height**.
-   - Click "Visualize" to apply the changes and see the modified nose.
-
-4. **Front Profile**: For the front profile, the system detects the nose landmarks around the face and allows the modification of the shape based on these points.
-
-5. **Side Profile**: For the side profile, the system detects the nose region using bounding box coordinates and allows adjustments to the width and height.
-
-6. **View Results**: After modifying, you will see the resulting image with the changes applied.
-
-## Example Workflow
-
-1. Upload your front or side profile photo.
-2. The application detects the nose area and overlays it.
-3. Adjust the sliders for nose width and height to visualize changes.
-4. Click "Visualize" to see the modified image.
-
-## Known Issues
-- The application works best with clear and well-lit images.
-- It may have difficulty detecting the nose in images where the face is obscured or turned at extreme angles.
-
-## Contributing
-
-Feel free to open an issue or a pull request if you want to contribute to this project!
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Rhinoplasty AI is a Streamlit-based web application that allows users to modify their nose shape using AI. The app detects nose landmarks using **MediaPipe FaceMesh** and provides real-time nose reshaping options.
 
 ---
 
-### Sreenshots
-![Screenshot 2025-01-24 155719](https://github.com/user-attachments/assets/adac76de-0e7c-4cfa-b069-7452c0f70a14)
+## 🚀 Features
 
-![Screenshot 2025-01-24 155726](https://github.com/user-attachments/assets/5c418405-5acb-45b0-b839-184861f21c38)
+- 📷 Upload an image or capture one using the camera.
+- 🔍 Detects nose landmarks using **MediaPipe FaceMesh**.
+- 🎨 Provides multiple pre-defined nose shape modifications.
+- 🎛️ Allows custom nose width and height adjustments.
+- 🖼️ Displays original and modified images side by side.
+- 🌟 Uses **seamless cloning** for natural blending.
 
-![Screenshot 2025-01-24 155756](https://github.com/user-attachments/assets/8781a35e-c60d-448c-adc6-332b1539851f)
+---
 
-![Screenshot 2025-01-24 155818](https://github.com/user-attachments/assets/5cbed567-b3a4-4157-bb23-36860cb3e333)
+## 🛠️ Installation
+
+### 1️⃣ Clone the Repository  
+```bash
+git clone https://github.com/yourusername/rhinoplasty-ai.git
+cd rhinoplasty-ai
+```
+
+### 2️⃣ Install Dependencies  
+```bash
+pip install -r requirements.txt
+```
+
+### 3️⃣ Run the App  
+```bash
+streamlit run app.py
+```
+
+---
+
+## 📜 Requirements  
+
+The required dependencies are listed in `requirements.txt`:
+
+```txt
+streamlit
+opencv-python
+mediapipe
+numpy
+pillow
+```
+
+Install them using:  
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🎨 Usage
+
+1. Choose an image input method:
+   - **Upload an image** (Front or Side Profile).
+   - **Use the camera** to capture an image.
+2. The app detects nose landmarks.
+3. Choose a **predefined nose shape** (e.g., Slimmer, Wider, Sharpened Tip, etc.).
+4. Adjust nose **width and height** using sliders.
+5. Click **"Apply Custom Nose Modification"** to see changes.
+
+---
+
+## 📸 Screenshots
+
+
+![Screenshot 2025-02-26 140655](https://github.com/user-attachments/assets/40b208b5-f645-4830-908b-1a831b78ccd7)
+
+![Screenshot 2025-02-26 140711](https://github.com/user-attachments/assets/890c1cae-90bc-41c1-b5f9-ebb8deba17b7)
+
+![Screenshot 2025-02-26 140728](https://github.com/user-attachments/assets/2ae97111-ab29-46e2-ab86-81a6e5c4ceb7)
+
 
 
 ---
 
-Let me know if you want to modify or add any additional details to the README!
+## 🤖 How It Works
+
+1. **Face Detection**: Uses **MediaPipe FaceMesh** to extract nose landmarks.
+2. **Region Extraction**: Extracts the detected nose region.
+3. **Resizing & Transformation**: Resizes the nose based on user-selected shape.
+4. **Seamless Cloning**: Blends the modified nose back into the face using **OpenCV's seamlessClone**.
+
+---
+
+
+## 👨‍💻 Author  
+
+**Sonali Kadam**  
+© 2025 AI-Powered Nose Modifier
+
+---
+
+## 📜 License  
+
+This project is licensed under the MIT License.
+
+---
+```
