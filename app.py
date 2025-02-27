@@ -5,8 +5,7 @@ import mediapipe as mp
 import numpy as np
 from PIL import Image
 
-
-# # Custom CSS for UI enhancements
+# Custom CSS for UI enhancements
 st.markdown("""
     <style>
         .stButton > button { 
@@ -58,34 +57,44 @@ def detect_nose_landmarks(image, profile="front", increase_factor=1.3):
         nose_h = min(h - y_min, int(nose_h * increase_factor))
 
         return (x_min, y_min, nose_w, nose_h), img_copy
-
 def modify_nose(image, nose_region, scale_x=1.2, scale_y=1.2):
     if not nose_region:
         return image
+
     x, y, w, h = nose_region
     nose_roi = image[y:y+h, x:x+w].copy()
+    
     if nose_roi.size == 0:
         return image
 
+    # Resize nose region
     new_w, new_h = int(w * scale_x), int(h * scale_y)
     resized_nose = cv2.resize(nose_roi, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
 
+    # Calculate new position
     x_center, y_center = x + w // 2, y + h // 2
     x1, y1 = max(0, x_center - new_w // 2), max(0, y_center - new_h // 2)
     x2, y2 = min(image.shape[1], x1 + new_w), min(image.shape[0], y1 + new_h)
-    
+
+    # Crop to avoid going out of bounds
     resized_nose = resized_nose[:y2-y1, :x2-x1]
 
-    # Creating a mask for seamless cloning
-    mask = 255 * np.ones(resized_nose.shape, resized_nose.dtype)
+    # Create an elliptical mask with soft edges
+    mask = np.zeros((y2 - y1, x2 - x1), dtype=np.uint8)
+    cv2.ellipse(mask, (mask.shape[1]//2, mask.shape[0]//2), (mask.shape[1]//2, mask.shape[0]//2), 
+                0, 0, 360, 255, -1)
+    mask = cv2.GaussianBlur(mask, (15, 15), 10)
 
-    # Blending using seamlessClone
-    blended_image = image.copy()
-    blended_image = cv2.seamlessClone(resized_nose, blended_image, mask, (x_center, y_center), cv2.NORMAL_CLONE)
+    # Convert to 3 channels
+    mask = cv2.merge([mask, mask, mask])
+
+    # Blend smoothly using Poisson blending
+    blended_image = cv2.seamlessClone(resized_nose, image, mask, (x_center, y_center), cv2.NORMAL_CLONE)
 
     return blended_image
 
-#Streamlit UI
+
+# Streamlit UI
 
 st.markdown("""
     <style>
@@ -148,20 +157,27 @@ if img_source:
 
 
         shape_modifiers = {
-            "Original": (1.0, 1.0),
-            "Longer": (0.9, 1.1),
-            "Wider": (1.2, 1.0),
-            "Sharpened Tip": (0.95, 0.9),
-            "Rounded Tip": (1.0, 1.2),
-            "Shorter": (1.0, 0.85),
-            "Slimmer": (0.9, 1.1),
-        }
+    "Longer": (0.85, 1.25),  # Slightly more vertical elongation for balance
+    "Wider": (1.25, 1.0),    # Keep it natural, avoid excessive stretching
+    "Sharpened Tip": (0.90, 0.80),  # Defined tip with subtle height reduction
+    "Rounded Tip": (1.10, 1.30),  # More fullness without looking unnatural
+    "Shorter": (1.0, 0.70),  # More compact, but still proportionate
+    "Slimmer": (0.75, 1.15),  # More defined, subtle vertical elongation
+    
+}
 
-        shape_images = {shape: modify_nose(image.copy(), nose_region, scale_x, scale_y) for shape, (scale_x, scale_y) in shape_modifiers.items()}
-        cols = st.columns(2)
-        for i, (shape, img) in enumerate(shape_images.items()):
-            with cols[i % 2]:  
-                st.image(img, caption=f"🔹 {shape}", use_container_width=True)
+
+
+
+
+        for shape, (scale_x, scale_y) in shape_modifiers.items():
+            modified_image = modify_nose(image.copy(), nose_region, scale_x, scale_y)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.image(image, caption="🔹 Original Image", use_container_width=True)
+            with col2:
+                st.image(modified_image, caption=f"✨ {shape}", use_container_width=True)
 
         st.write("### 🎛️ Custom Adjustments")
 
@@ -184,6 +200,4 @@ if img_source:
 # Footer
 st.markdown("---")
 st.markdown("<p style='text-align:center; font-size:14px;'>© 2025 Sonali Kadam | AI-Powered Nose Modifier</p>", unsafe_allow_html=True)
-
-
 
